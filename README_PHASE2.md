@@ -1,3 +1,5 @@
+> **Historical phase notes.** The up-to-date explanation is in `docs/algorithm.md`, `docs/results.md` and `docs/viva_guide.md`. (The heuristic weights mentioned here were later re-tuned and a monotonicity bug was fixed.)
+
 # Phase 2: Random, Greedy, and Expectimax
 
 Copy `agents.py`, `demo.py`, and `tests/test_agents.py` into the matching places

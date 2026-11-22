@@ -2,64 +2,104 @@
 
 Depth counts player moves. Each player move is followed by one complete
 chance node (the random tile spawn), so depth=1 is a one-move search.
+
+The search works on board tuples (see ``game.py``): a move creates a new tuple
+instead of copying a whole ``GameState``, and tuples can be cache keys.
 """
 
 import math
 import random
+from functools import lru_cache
 
-from game import DIRECTIONS, SIZE
+from game import SIZE, can_move, possible_moves
 
 
-def _board_key(state):
-    return tuple(value for row in state.grid for value in row)
+# Chosen by tune.py (grid search on tuning seeds 51-70, best average score at
+# depth 2; see results/tuning/). The corner weight came out as 0: monotonicity
+# already pushes the largest tile into a corner, so the extra bonus did not help.
+DEFAULT_WEIGHTS = {
+    "empty": 100.0,
+    "monotonicity": 20.0,
+    "smoothness": 11.0,
+    "corner": 0.0,
+}
+
+# Value of a board with no legal moves. Far below any normal heuristic value,
+# so even a small chance of losing makes a move look clearly worse.
+LOSS_VALUE = -100_000.0
 
 
 def _log_tile(value):
     return math.log2(value) if value else 0.0
 
 
-def evaluate_board(state, weights=None):
-    """Return a weighted score for a board; larger values are better."""
-    weights = weights or {
-        "empty": 270.0,
-        "monotonicity": 47.0,
-        "smoothness": 11.0,
-        "corner": 10.0,
-    }
-    grid = state.grid
-    logs = [[_log_tile(value) for value in row] for row in grid]
-    empty_count = sum(value == 0 for row in grid for value in row)
+@lru_cache(maxsize=None)
+def _line_features(line):
+    """Return (empty cells, monotonicity, smoothness) for one row or column.
 
-    # Penalize neighboring tiles whose exponents differ greatly.
+    The board heuristic is a sum over its 4 rows and 4 columns, so caching each
+    line's features makes evaluation fast. Tile values are compared as log2
+    (2 -> 1, 4 -> 2, 8 -> 3, ...) so that 1024 vs 2048 counts as one step.
+    """
+    logs = [_log_tile(value) for value in line]
+    empty = sum(value == 0 for value in line)
+
+    # Smoothness: penalize neighbouring tiles whose exponents differ greatly.
     smoothness = 0.0
-    for r in range(SIZE):
-        for c in range(SIZE):
-            if logs[r][c] == 0:
-                continue
-            if c + 1 < SIZE and logs[r][c + 1] != 0:
-                smoothness -= abs(logs[r][c] - logs[r][c + 1])
-            if r + 1 < SIZE and logs[r + 1][c] != 0:
-                smoothness -= abs(logs[r][c] - logs[r + 1][c])
+    for left, right in zip(logs, logs[1:]):
+        if left and right:
+            smoothness -= abs(left - right)
 
-    # For each row and column, reward either increasing or decreasing order.
-    monotonicity = 0.0
-    for line in logs + [list(column) for column in zip(*logs)]:
-        increasing = decreasing = 0.0
-        for left, right in zip(line, line[1:]):
+    # Monotonicity: add up the "uphill" steps and the "downhill" steps.
+    # A perfectly ordered line has one of them equal to 0, so no penalty.
+    increasing = decreasing = 0.0
+    for left, right in zip(logs, logs[1:]):
+        if right > left:
             increasing += right - left
+        else:
             decreasing += left - right
-        monotonicity -= max(increasing, decreasing)
+    monotonicity = -min(increasing, decreasing)
 
-    largest = max(max(row) for row in grid)
-    corners = (grid[0][0], grid[0][-1], grid[-1][0], grid[-1][-1])
+    return empty, monotonicity, smoothness
+
+
+def evaluate_board(board, weights=None):
+    """Return a weighted score for a board; larger values are better.
+
+    ``board`` may be a ``GameState`` or a board tuple.
+    """
+    if hasattr(board, "to_tuple"):
+        board = board.to_tuple()
+    weights = weights or DEFAULT_WEIGHTS
+
+    empty = monotonicity = smoothness = 0.0
+    for row in board:
+        row_empty, row_monotonicity, row_smoothness = _line_features(row)
+        empty += row_empty
+        monotonicity += row_monotonicity
+        smoothness += row_smoothness
+    for column in zip(*board):
+        # Empty cells were already counted in the rows.
+        _, column_monotonicity, column_smoothness = _line_features(column)
+        monotonicity += column_monotonicity
+        smoothness += column_smoothness
+
+    largest = max(max(row) for row in board)
+    corners = (board[0][0], board[0][-1], board[-1][0], board[-1][-1])
     corner = _log_tile(largest) if largest and largest in corners else 0.0
 
     return (
-        weights["empty"] * empty_count
+        weights["empty"] * empty
         + weights["monotonicity"] * monotonicity
         + weights["smoothness"] * smoothness
         + weights["corner"] * corner
     )
+
+
+def place_tile(board, r, c, tile):
+    """Return a new board tuple with ``tile`` placed at row r, column c."""
+    row = board[r][:c] + (tile,) + board[r][c + 1:]
+    return board[:r] + (row,) + board[r + 1:]
 
 
 class RandomAgent:
@@ -78,15 +118,16 @@ class GreedyAgent:
 
     def __init__(self, weights=None):
         self.weights = dict(weights) if weights is not None else None
+        self.move_values = {}  # direction -> heuristic value, for display
 
     def choose_move(self, state):
+        self.move_values = {}
         best_move, best_value = None, -math.inf
-        for direction in DIRECTIONS:
-            child = state.copy()
-            if child.move(direction):
-                value = evaluate_board(child, self.weights)
-                if value > best_value:
-                    best_move, best_value = direction, value
+        for direction, child, _ in possible_moves(state.to_tuple()):
+            value = evaluate_board(child, self.weights)
+            self.move_values[direction] = value
+            if value > best_value:
+                best_move, best_value = direction, value
         return best_move
 
 
@@ -111,48 +152,48 @@ class ExpectimaxAgent:
         self.max_chance_outcomes = max_chance_outcomes
         self.nodes_expanded = 0
         self.transposition_table = {}
+        self.move_values = {}  # direction -> expected value, for display
 
     def choose_move(self, state):
+        """Root MAX node: return the move with the highest expected value."""
         self.nodes_expanded = 0
         self.transposition_table = {}
+        self.move_values = {}
         best_move, best_value = None, -math.inf
-        for direction in DIRECTIONS:
-            child = state.copy()
-            if not child.move(direction):
-                continue
+        for direction, child, _ in possible_moves(state.to_tuple()):
             value = self._chance_value(child, self.depth)
+            self.move_values[direction] = value
             if value > best_value:
                 best_move, best_value = direction, value
         return best_move
 
-    def _max_value(self, state, depth):
-        key = ("max", _board_key(state), depth)
+    def _max_value(self, board, depth):
+        """MAX node: the player picks the best move (or the search stops)."""
+        key = ("max", board, depth)
         if key in self.transposition_table:
             return self.transposition_table[key]
         self.nodes_expanded += 1
-        moves = state.legal_moves()
-        if depth == 0 or not moves:
-            value = evaluate_board(state, self.weights)
+        if not can_move(board):
+            value = LOSS_VALUE  # game over: the worst possible outcome
+        elif depth == 0:
+            value = evaluate_board(board, self.weights)  # search limit reached
         else:
-            value = -math.inf
-            for direction in moves:
-                child = state.copy()
-                child.move(direction)
-                value = max(value, self._chance_value(child, depth))
+            value = max(
+                self._chance_value(child, depth) for _, child, _ in possible_moves(board)
+            )
         self.transposition_table[key] = value
         return value
 
-    def _spawn_outcomes(self, state):
-        empty = state.empty_cells()
+    def _spawn_outcomes(self, board):
+        """List (board after spawn, probability) for every possible new tile."""
+        empty = [(r, c) for r in range(SIZE) for c in range(SIZE) if board[r][c] == 0]
         if not empty:
-            return [(state, 1.0)]
+            return [(board, 1.0)]
         outcomes = []
         cell_probability = 1.0 / len(empty)
         for r, c in empty:
             for tile, tile_probability in ((2, 0.9), (4, 0.1)):
-                child = state.copy()
-                child.grid[r][c] = tile
-                outcomes.append((child, cell_probability * tile_probability))
+                outcomes.append((place_tile(board, r, c, tile), cell_probability * tile_probability))
         limit = self.max_chance_outcomes
         if limit is None or len(outcomes) <= limit:
             return outcomes
@@ -170,14 +211,15 @@ class ExpectimaxAgent:
                     break
         return sampled
 
-    def _chance_value(self, state, depth):
-        key = ("chance", _board_key(state), depth)
+    def _chance_value(self, board, depth):
+        """CHANCE node: probability-weighted average over all tile spawns."""
+        key = ("chance", board, depth)
         if key in self.transposition_table:
             return self.transposition_table[key]
         self.nodes_expanded += 1
         value = sum(
             probability * self._max_value(child, depth - 1)
-            for child, probability in self._spawn_outcomes(state)
+            for child, probability in self._spawn_outcomes(board)
         )
         self.transposition_table[key] = value
         return value
