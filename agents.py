@@ -167,13 +167,14 @@ class ExpectimaxAgent:
             return self.transposition_table[key]
         self.nodes_expanded += 1
         if not can_move(board):
-            value = LOSS_VALUE  # game over: the worst possible outcome
-        elif depth == 0:
-            value = evaluate_board(board, self.weights)  # search limit reached
-        else:
-            value = max(
-                self._chance_value(child, depth) for _, child, _ in possible_moves(board)
-            )
+            return LOSS_VALUE  # game over: the worst possible outcome
+        if depth == 0:
+            # Search limit reached. Leaves are the most common nodes and cheap
+            # to evaluate, so they are not stored: this keeps memory use small.
+            return evaluate_board(board, self.weights)
+        value = max(
+            self._chance_value(child, depth) for _, child, _ in possible_moves(board)
+        )
         self.transposition_table[key] = value
         return value
 

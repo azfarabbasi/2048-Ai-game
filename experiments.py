@@ -83,20 +83,31 @@ def play_game(job):
     }
 
 
-def run_games(configs, seeds, workers, max_moves=None):
+def run_games(configs, seeds, workers, max_moves=None, save_to=None):
     """Play every config on every seed, several games at once on different CPU cores.
 
     Each game depends only on its seed, so running in parallel gives exactly
     the same results as running one by one; it is just faster.
+
+    With ``save_to``, each game is added to that CSV the moment it finishes and
+    games already in the file are skipped. A crash then loses nothing: run the
+    same command again and it continues where it stopped.
     """
-    jobs = [(config, seed, max_moves) for config in configs for seed in seeds]
-    rows = []
+    done = {}
+    if save_to is not None and save_to.exists():
+        done = {(row["agent_label"], row["seed"]): row for row in read_csv(save_to)}
+    jobs = [(config, seed, max_moves) for config in configs for seed in seeds
+            if (config["label"], seed) not in done]
+    finished = dict(done)
     with multiprocessing.Pool(workers) as pool:
-        for row in pool.imap(play_game, jobs):  # imap returns results in job order
-            rows.append(row)
-            print(f"  {len(rows)}/{len(jobs)}  {row['agent_label']}, seed {row['seed']}: "
+        for row in pool.imap_unordered(play_game, jobs):  # results arrive as games finish
+            finished[(row["agent_label"], row["seed"])] = row
+            if save_to is not None:
+                append_csv(save_to, row)
+            print(f"  {len(finished) - len(done)}/{len(jobs)}  {row['agent_label']}, seed {row['seed']}: "
                   f"score {row['score']}, highest tile {row['highest_tile']}", flush=True)
-    return rows
+    # Return the rows in a fixed order: config by config, seed by seed.
+    return [finished[(config["label"], seed)] for config in configs for seed in seeds]
 
 
 def summarize(rows):
@@ -120,6 +131,31 @@ def summarize(rows):
     return summary
 
 
+NUMBER_COLUMNS = {"seed": int, "score": int, "highest_tile": int, "moves": int,
+                  "reached_2048": int, "mean_decision_ms": float, "mean_nodes_expanded": float}
+
+
+def read_csv(path):
+    """Read per-game rows back from a CSV, turning number columns into numbers."""
+    with path.open(newline="", encoding="utf-8") as file:
+        rows = list(csv.DictReader(file))
+    for row in rows:
+        for column, convert in NUMBER_COLUMNS.items():
+            row[column] = convert(row[column])
+    return rows
+
+
+def append_csv(path, row):
+    """Add one row to a CSV, writing the header first if the file is new."""
+    new_file = not path.exists()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=list(row))
+        if new_file:
+            writer.writeheader()
+        writer.writerow(row)
+
+
 def write_csv(path, rows):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as file:
@@ -134,9 +170,9 @@ def compare_agents(depths, seeds, output_dir, workers, max_moves=None):
     configs = [agent_config("random"), agent_config("greedy")]
     configs += [agent_config("expectimax", depth) for depth in depths]
     configs += [agent_config("expectimax", depth, "monotonicity") for depth in depths]
-    rows = run_games(configs, seeds, workers, max_moves)
+    rows = run_games(configs, seeds, workers, max_moves, save_to=output_dir / "per_game.csv")
     summary = summarize(rows)
-    write_csv(output_dir / "per_game.csv", rows)
+    write_csv(output_dir / "per_game.csv", rows)  # rewrite in a tidy, fixed order
     write_csv(output_dir / "summary.csv", summary)
     for line in summary:
         print(f"{line['agent_label']:<40} average score {line['average_score']:>7}, "
@@ -178,7 +214,8 @@ def main():
     parser.add_argument("--tune", action="store_true", help="grid-search the heuristic weights")
     parser.add_argument("--quick", action="store_true", help="a fast check: 3 seeds, 100 moves")
     parser.add_argument("--depths", type=int, nargs="+", default=[1, 2, 3])
-    parser.add_argument("--workers", type=int, default=max(1, multiprocessing.cpu_count() - 1))
+    # Leave some CPU cores and memory free for the rest of the computer.
+    parser.add_argument("--workers", type=int, default=max(1, multiprocessing.cpu_count() // 2))
     parser.add_argument("--output", type=Path, default=Path("results/final"))
     args = parser.parse_args()
 

@@ -12,7 +12,7 @@ from agents import (
     DEFAULT_WEIGHTS, LOSS_VALUE, ExpectimaxAgent, GreedyAgent, RandomAgent,
     _line_features, evaluate_board, place_tile,
 )
-from experiments import agent_config, play_game, summarize, write_csv
+from experiments import agent_config, play_game, read_csv, run_games, summarize, write_csv
 from game import SIZE, GameState, can_move, merge_line, possible_moves, slide_board
 
 LOCKED = ((2, 4, 2, 4), (4, 2, 4, 2), (2, 4, 2, 4), (4, 2, 4, 2))  # full, no merges
@@ -175,6 +175,17 @@ class ExperimentTests(unittest.TestCase):
             write_csv(Path(folder) / "per_game.csv", rows)
             with (Path(folder) / "per_game.csv").open(newline="", encoding="utf-8") as file:
                 self.assertEqual(len(list(csv.DictReader(file))), 4)
+
+
+    def test_saved_games_are_skipped_when_resuming(self):
+        configs = [agent_config("random")]
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "per_game.csv"
+            first = run_games(configs, [1, 2], workers=1, max_moves=10, save_to=path)
+            self.assertEqual(len(read_csv(path)), 2)
+            again = run_games(configs, [1, 2, 3], workers=1, max_moves=10, save_to=path)
+            self.assertEqual(len(read_csv(path)), 3)  # only seed 3 was played
+            self.assertEqual(again[:2], first)
 
 
 class GuiTests(unittest.TestCase):

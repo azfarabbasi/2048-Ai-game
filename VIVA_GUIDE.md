@@ -191,14 +191,14 @@ showed 65% of the time went into copying `GameState` objects. Now:
 | `@lru_cache` on row sliding | Rows repeat constantly, so each row is computed once, then looked up. |
 | `@lru_cache` on line features | Same idea for the heuristic (it is a sum over 4 rows + 4 columns). |
 | `can_move()` | A board with an empty cell can always move, so most leaves skip trying 4 moves. |
-| Transposition table | The same board can be reached by different move orders (left-then-up = up-then-left); its value is stored by (node type, board, depth) and reused within one decision. |
+| Transposition table | The same board can be reached by different move orders (left-then-up = up-then-left); its value is stored by (node type, board, depth) and reused within one decision. Leaves (depth 0) are not stored: they are the most common nodes and cheap to evaluate, and storing them once made the computer run out of memory during the 50-game experiment. |
 | Parallel games | Experiments run 7 games at once on different CPU cores; seeds keep results identical. |
 
 Depth 2 is now about **17 ms per move** with exactly the same decisions. A test
 compares the cached search against a plain Expectimax with no cache.
 
 **Exponential growth.** On the board `[[2,2,4,0],[4,8,0,0],[0,0,0,0],[0,0,0,0]]`
-the agent expands 73 → 1,928 → 29,679 nodes at depth 1 → 2 → 3. With *e* empty
+the agent expands 73 → 2,074 → 32,511 nodes at depth 1 → 2 → 3. With *e* empty
 cells, each level multiplies the tree by about 4 moves × 2*e* spawns, i.e. the work
 is roughly O((8e)^d). That is why depth 4 is impractical in pure Python. Check it:
 
@@ -269,7 +269,7 @@ corner weight to 0 because monotonicity already does that job.
 
 **What is search depth? Why does it cost so much?** How many of our moves the
 agent looks ahead. Each level multiplies the work by about 4 × 2·(empty cells),
-so cost grows exponentially (73 → 1,928 → 29,679 nodes).
+so cost grows exponentially (73 → 2,074 → 32,511 nodes).
 
 **Is deeper always better?** Usually it plays better, but it costs much more
 time. See the depth charts: the question is whether the gain is worth the time.
