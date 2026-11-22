@@ -5,61 +5,70 @@ Artificial Intelligence Lab project (AL-2002), FAST NUCES Karachi.
 An AI that plays the 2048 puzzle. Its core is **Expectimax search**: MAX nodes
 for our moves, CHANCE nodes for the random 2/4 tile, and a heuristic that scores
 boards at the depth limit. It is compared with a **Random** and a **Greedy**
-baseline on the same 50 seeded games.
+agent on the same 50 seeded games.
 
-![GUI](screenshots/gui_autoplay.png)
+![The game window with Expectimax playing](screenshots/gui_autoplay.png)
 
-## Requirements
+## How to run
 
-Python 3.9 or newer. The game, agents, GUI and experiments use only the
-standard library (Tkinter is included with Python on Windows). Charts need
-matplotlib:
+Python 3.9+. Everything except the charts uses only the standard library.
 
 ```bash
-pip install -r requirements.txt
+python main.py                      # open the game: play with arrow keys/WASD or let an AI play
+python -m unittest tests -v         # run all tests
+python experiments.py --quick       # 1-minute check that experiments work
+python experiments.py               # full comparison on seeds 1-50 (about 1.5 hours on 8 cores)
+python experiments.py --tune        # grid search for heuristic weights (seeds 51-70)
+pip install -r requirements.txt     # matplotlib, needed only for charts
+python charts.py                    # draw charts from results/final/per_game.csv
 ```
 
-## Run
+## Architecture
 
-| Command | What it does |
-|---|---|
-| `python gui.py` | Window: play with arrow keys/WASD, or let an agent play (choose agent, depth, speed) |
-| `python main.py` | Play in the terminal |
-| `python demo.py` | Every agent decides on one example board; shows move values and node counts |
-| `python -m unittest discover -s tests -v` | Run all tests |
-| `python experiments.py --seeds 1-50 --depths 1 2 3 --ablate monotonicity --workers 7 --output-dir results/final` | The full experiment (about 1 hour on 8 cores) |
-| `python charts.py` | Draw the report charts from `results/final/per_game.csv` |
-| `python tune.py` | Grid-search the heuristic weights on tuning seeds 51-70 |
+Five program files in layers; each file only uses the files below it.
 
-A quick check that experiments work: `python experiments.py --seeds 1-3 --depths 1 --output-dir results/smoke`.
+```text
+   main.py           experiments.py          charts.py
+   (window)          (play many games,       (CSV -> pictures)
+      |               write CSV)                  ^
+      +--------+-----------+                      |
+               v                       results/final/per_game.csv
+          agents.py      which move is best?    Random, Greedy, Expectimax + heuristic
+               |
+               v
+           game.py       what happens if I move?    all the rules of 2048
+```
 
-## Project structure
+| File | Job | Main pieces |
+|---|---|---|
+| `game.py` | The rules of 2048 | `slide_board` (move without spawning), `possible_moves`, `can_move`, `GameState` (`play`, `spawn`, `legal_moves`, `is_terminal`) |
+| `agents.py` | Choosing moves | `evaluate_board` (heuristic), `RandomAgent`, `GreedyAgent`, `ExpectimaxAgent` (`_max_value`, `_chance_value`, transposition table) |
+| `main.py` | Tkinter window | Board, score, agent/depth/speed choice, AI Move, Auto Play, Restart. The AI runs in a background thread so the window never freezes. |
+| `experiments.py` | Measuring | `--tune` grid search; the 50-seed comparison and ablation → `per_game.csv`, `summary.csv` |
+| `charts.py` | Pictures | Six PNG charts in `results/charts/`, computed only from the CSV |
+| `tests.py` | Checking | 22 tests: rules, agents, Expectimax maths, experiments, window |
 
-| File | Purpose |
-|---|---|
-| `game.py` | All 2048 rules: sliding/merging, scoring, seeded tile spawning, legal moves, game over |
-| `agents.py` | `RandomAgent`, `GreedyAgent`, `ExpectimaxAgent`, and the heuristic `evaluate_board` |
-| `gui.py` | Tkinter interface; the AI runs in a background thread so the window never freezes |
-| `experiments.py` | Plays seeded games for each agent; writes `per_game.csv` and `summary.csv` |
-| `charts.py` | Turns the CSV into PNG charts in `results/charts/` |
-| `tune.py` | Grid search for heuristic weights (separate seeds from the evaluation) |
-| `main.py`, `demo.py` | Terminal game and a small agent demonstration |
-| `tests/` | Engine, agent, experiment and GUI tests |
-| `docs/algorithm.md` | **How it works**: architecture, heuristic, Expectimax with a dry run, optimisations |
-| `docs/results.md` | **Measured results** and what they mean |
-| `docs/viva_guide.md` | Answers to likely viva questions and a demo plan |
+**How one AI move flows:** `main.py` gives the current board to the chosen agent →
+the agent explores future boards with `game.py`'s `slide_board` (no randomness,
+no copying of the real game) and Expectimax averages over every possible new
+tile → it returns the best direction → `main.py` calls `state.play(direction)`,
+which moves and spawns a real random tile → the board is redrawn.
 
-## Key design points
+**Key design decisions**
 
-* `move()` changes the board without spawning; `play()` = move + spawn. This
-  lets the AI explore "what if" boards with no randomness, while Expectimax
-  models the spawn explicitly at chance nodes.
-* Depth counts our moves; each move is followed by one chance node.
-* Losing boards get a very large negative value, so the agent avoids moves with
-  even a small chance of ending the game.
-* Speed: immutable board tuples, cached row moves, cached heuristic features,
-  and a transposition table. Depth 2 went from 385 ms to about 17 ms per move.
-* Heuristic weights (empty 100, monotonicity 20, smoothness 11, corner 0) were
-  chosen by `tune.py` on seeds 51-70; evaluation uses seeds 1-50.
+* `move()` changes the board without spawning; `play()` = move + spawn. The AI
+  can explore "what if" boards with no randomness, and Expectimax models the
+  random tile explicitly at chance nodes.
+* The AI searches with immutable board tuples, so nothing is copied and boards
+  can be cache keys. Depth 2 went from 385 ms to about 17 ms per move.
+* A board with no legal move scores −100000, so the agent avoids even a small
+  chance of losing.
+* Weights (empty 100, monotonicity 20, smoothness 11, corner 0) were tuned on
+  seeds 51–70; the evaluation uses seeds 1–50.
 
-See [docs/results.md](docs/results.md) for the experiment results.
+**[VIVA_GUIDE.md](VIVA_GUIDE.md)** explains every part step by step, with a dry
+run of Expectimax beating Greedy and answers to likely viva questions.
+
+## Results
+
+*Filled in from `results/final/summary.csv` after the full experiment.*

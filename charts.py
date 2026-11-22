@@ -1,8 +1,8 @@
 """Draw the report charts from the experiment CSV files.
 
-Run after experiments.py:
+Run after experiments.py (needs matplotlib):
 
-    python charts.py --input results/final --output results/charts
+    python charts.py
 
 Every chart is computed from per_game.csv, so nothing is typed in by hand.
 """
@@ -36,7 +36,7 @@ def load_rows(path):
     with Path(path).open(newline="", encoding="utf-8") as file:
         rows = list(csv.DictReader(file))
     for row in rows:
-        for key in ("score", "highest_tile", "moves", "reached_2048", "total_nodes_expanded"):
+        for key in ("score", "highest_tile", "moves", "reached_2048"):
             row[key] = int(row[key])
         for key in ("mean_decision_ms", "mean_nodes_expanded"):
             row[key] = float(row[key])

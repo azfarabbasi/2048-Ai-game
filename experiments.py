@@ -1,363 +1,193 @@
-"""Run reproducible comparisons between the 2048 AI agents.
+"""Measure the agents: tune the heuristic weights, then compare all agents.
 
-The runner gives every agent the same list of starting seeds.  A result row is
-written for every completed game and a second CSV contains aggregate metrics
-that are useful in the project report and viva.
+    python experiments.py            final comparison on seeds 1-50 -> results/final/
+    python experiments.py --quick    3 short games per agent, to check that it works
+    python experiments.py --tune     grid search for heuristic weights on seeds 51-70
+
+Fairness rules:
+* Every agent plays the same seeds, so every agent gets the same starting board.
+* Weights are tuned on seeds 51-70 and tested on seeds 1-50, never the same games.
+* A new agent is created for every game, so nothing carries over between games.
+* Only ``choose_move`` is timed (not drawing or tile spawning).
 """
 
 import argparse
 import csv
+import itertools
 import multiprocessing
 import statistics
 import time
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from agents import DEFAULT_WEIGHTS, ExpectimaxAgent, GreedyAgent, RandomAgent
 from game import GameState
 
 
-PER_GAME_FIELDS = (
-    "agent",
-    "agent_label",
-    "depth",
-    "chance_mode",
-    "max_chance_outcomes",
-    "ablated_feature",
-    "seed",
-    "score",
-    "highest_tile",
-    "moves",
-    "reached_2048",
-    "decision_time_seconds",
-    "mean_decision_ms",
-    "total_nodes_expanded",
-    "mean_nodes_expanded",
-    "stop_reason",
-)
+EVALUATION_SEEDS = list(range(1, 51))
+TUNING_SEEDS = list(range(51, 71))
 
-SUMMARY_FIELDS = (
-    "agent",
-    "agent_label",
-    "depth",
-    "chance_mode",
-    "max_chance_outcomes",
-    "ablated_feature",
-    "games",
-    "wins",
-    "win_rate",
-    "average_score",
-    "median_score",
-    "average_highest_tile",
-    "average_moves",
-    "average_decision_ms",
-    "average_total_nodes_expanded",
-    "average_nodes_expanded_per_move",
-)
+# Candidate values for the grid search (3 x 3 x 3 x 3 = 81 combinations).
+WEIGHT_GRID = {
+    "empty": (100.0, 270.0, 500.0),
+    "monotonicity": (20.0, 47.0, 100.0),
+    "smoothness": (0.0, 11.0, 30.0),
+    "corner": (0.0, 10.0, 100.0),
+}
 
 
-@dataclass(frozen=True)
-class AgentConfig:
-    """The settings needed to create a fresh agent for one game."""
-
-    name: str
-    depth: Optional[int] = None
-    max_chance_outcomes: Optional[int] = None
-    ablated_feature: Optional[str] = None  # heuristic feature switched off
-
-    @property
-    def label(self):
-        if self.name == "expectimax":
-            label = f"Expectimax depth {self.depth}"
-            if self.ablated_feature:
-                label += f" (no {self.ablated_feature})"
-            return label
-        return self.name.title()
-
-    @property
-    def weights(self):
-        """Heuristic weights, with the ablated feature's weight set to zero."""
-        if self.ablated_feature is None:
-            return None  # the agent then uses DEFAULT_WEIGHTS
-        return {**DEFAULT_WEIGHTS, self.ablated_feature: 0.0}
-
-    @property
-    def chance_mode(self):
-        if self.name != "expectimax":
-            return "not_applicable"
-        return "exact" if self.max_chance_outcomes is None else "stratified_approximation"
-
-    def metadata(self):
-        return {
-            "agent": self.name,
-            "agent_label": self.label,
-            "depth": "" if self.depth is None else self.depth,
-            "chance_mode": self.chance_mode,
-            "max_chance_outcomes": "" if self.max_chance_outcomes is None else self.max_chance_outcomes,
-            "ablated_feature": self.ablated_feature or "",
-        }
+def agent_config(agent, depth=None, ablated_feature=None, weights=None):
+    """Describe one agent setting. ``ablated_feature`` sets that weight to 0."""
+    label = agent.title() if agent != "expectimax" else f"Expectimax depth {depth}"
+    if ablated_feature:
+        label += f" (no {ablated_feature})"
+        weights = {**DEFAULT_WEIGHTS, ablated_feature: 0.0}
+    return {"label": label, "agent": agent, "depth": depth,
+            "ablated_feature": ablated_feature, "weights": weights}
 
 
-def parse_seeds(values):
-    """Parse individual seeds and inclusive ranges such as ``1-50``."""
-    seeds = []
-    for value in values:
-        if "-" in value:
-            start_text, end_text = value.split("-", 1)
-            start, end = int(start_text), int(end_text)
-            if start > end:
-                raise ValueError(f"Seed range must increase: {value}")
-            seeds.extend(range(start, end + 1))
-        else:
-            seeds.append(int(value))
-    if not seeds:
-        raise ValueError("Provide at least one seed")
-    return list(dict.fromkeys(seeds))
-
-
-def build_configs(agent_names, depths, max_chance_outcomes=None, ablate=()):
-    """Build the comparison set requested on the command line.
-
-    ``ablate`` lists heuristic features (such as ``monotonicity``). For each
-    one, an extra Expectimax run is added with that feature's weight set to 0,
-    which shows how much the feature helps.
-    """
-    names = tuple(agent_names)
-    unknown = set(names) - {"random", "greedy", "expectimax"}
-    if unknown:
-        raise ValueError(f"Unknown agent name(s): {', '.join(sorted(unknown))}")
-    if not names:
-        raise ValueError("Choose at least one agent")
-    unknown_features = set(ablate) - set(DEFAULT_WEIGHTS)
-    if unknown_features:
-        raise ValueError(f"Unknown heuristic feature(s): {', '.join(sorted(unknown_features))}")
-
-    configs = []
-    for name in names:
-        if name == "expectimax":
-            for depth in depths:
-                configs.append(AgentConfig(name, depth, max_chance_outcomes))
-                for feature in ablate:
-                    configs.append(AgentConfig(name, depth, max_chance_outcomes, feature))
-        else:
-            configs.append(AgentConfig(name))
-    return configs
-
-
-def create_agent(config, seed):
-    """Create a new agent so games do not share random or search state."""
-    if config.name == "random":
+def make_agent(config, seed):
+    if config["agent"] == "random":
         return RandomAgent(seed=seed)
-    if config.name == "greedy":
-        return GreedyAgent()
-    if config.name == "expectimax":
-        return ExpectimaxAgent(
-            config.depth, weights=config.weights, max_chance_outcomes=config.max_chance_outcomes
-        )
-    raise ValueError(f"Unsupported agent: {config.name}")
+    if config["agent"] == "greedy":
+        return GreedyAgent(config["weights"])
+    return ExpectimaxAgent(config["depth"], config["weights"])
 
 
-def play_game(config, seed, max_moves=None):
-    """Play one seeded game and return the metrics needed for a CSV row.
-
-    Decision time measures only ``choose_move``.  It does not include the
-    engine's tile spawning, so it fairly describes the cost of the AI decision.
-    """
-    if max_moves is not None and max_moves < 1:
-        raise ValueError("max_moves must be at least 1 when supplied")
-
+def play_game(job):
+    """Play one seeded game until no move is left; return one CSV row."""
+    config, seed, max_moves = job
     state = GameState(seed=seed)
-    agent = create_agent(config, seed)
-    moves = 0
-    decision_seconds = 0.0
-    total_nodes = 0
-    stop_reason = "terminal"
+    agent = make_agent(config, seed)
+    moves, thinking_seconds, nodes = 0, 0.0, 0
 
-    while not state.is_terminal():
-        if max_moves is not None and moves >= max_moves:
-            stop_reason = "move_limit"
-            break
-
+    while not state.is_terminal() and (max_moves is None or moves < max_moves):
         started = time.perf_counter()
         move = agent.choose_move(state)
-        decision_seconds += time.perf_counter() - started
-        total_nodes += getattr(agent, "nodes_expanded", 0)
-
-        if move is None:
-            stop_reason = "agent_returned_no_move"
-            break
-        if not state.play(move):
-            stop_reason = "agent_returned_illegal_move"
-            break
+        thinking_seconds += time.perf_counter() - started
+        nodes += getattr(agent, "nodes_expanded", 0)  # Random/Greedy have no search tree
+        state.play(move)
         moves += 1
 
-    metadata = config.metadata()
     return {
-        **metadata,
+        "agent_label": config["label"],
+        "agent": config["agent"],
+        "depth": config["depth"] or "",
+        "ablated_feature": config["ablated_feature"] or "",
         "seed": seed,
         "score": state.score,
         "highest_tile": state.highest_tile(),
         "moves": moves,
         "reached_2048": int(state.reached_2048()),
-        "decision_time_seconds": round(decision_seconds, 6),
-        "mean_decision_ms": round(1000 * decision_seconds / moves, 6) if moves else 0.0,
-        "total_nodes_expanded": total_nodes,
-        "mean_nodes_expanded": round(total_nodes / moves, 6) if moves else 0.0,
-        "stop_reason": stop_reason,
+        "mean_decision_ms": round(1000 * thinking_seconds / max(moves, 1), 4),
+        "mean_nodes_expanded": round(nodes / max(moves, 1), 1),
     }
 
 
-def summarize(rows, configs):
-    """Aggregate result rows in the same order as the requested configurations."""
-    summaries = []
-    for config in configs:
-        metadata = config.metadata()
-        group = [
-            row for row in rows
-            if all(row[key] == value for key, value in metadata.items())
-        ]
-        if not group:
-            continue
+def run_games(configs, seeds, workers, max_moves=None):
+    """Play every config on every seed, several games at once on different CPU cores.
 
-        scores = [row["score"] for row in group]
-        summaries.append({
-            **metadata,
-            "games": len(group),
-            "wins": sum(row["reached_2048"] for row in group),
-            "win_rate": round(sum(row["reached_2048"] for row in group) / len(group), 6),
-            "average_score": round(statistics.fmean(scores), 6),
-            "median_score": statistics.median(scores),
-            "average_highest_tile": round(statistics.fmean(row["highest_tile"] for row in group), 6),
-            "average_moves": round(statistics.fmean(row["moves"] for row in group), 6),
-            "average_decision_ms": round(statistics.fmean(row["mean_decision_ms"] for row in group), 6),
-            "average_total_nodes_expanded": round(
-                statistics.fmean(row["total_nodes_expanded"] for row in group), 6
-            ),
-            "average_nodes_expanded_per_move": round(
-                statistics.fmean(row["mean_nodes_expanded"] for row in group), 6
-            ),
+    Each game depends only on its seed, so running in parallel gives exactly
+    the same results as running one by one; it is just faster.
+    """
+    jobs = [(config, seed, max_moves) for config in configs for seed in seeds]
+    rows = []
+    with multiprocessing.Pool(workers) as pool:
+        for row in pool.imap(play_game, jobs):  # imap returns results in job order
+            rows.append(row)
+            print(f"  {len(rows)}/{len(jobs)}  {row['agent_label']}, seed {row['seed']}: "
+                  f"score {row['score']}, highest tile {row['highest_tile']}", flush=True)
+    return rows
+
+
+def summarize(rows):
+    """One summary row per agent label: averages over its games."""
+    labels = list(dict.fromkeys(row["agent_label"] for row in rows))
+    summary = []
+    for label in labels:
+        games = [row for row in rows if row["agent_label"] == label]
+        summary.append({
+            "agent_label": label,
+            "games": len(games),
+            "reached_2048": sum(g["reached_2048"] for g in games),
+            "win_rate_percent": round(100 * statistics.fmean(g["reached_2048"] for g in games), 1),
+            "average_score": round(statistics.fmean(g["score"] for g in games)),
+            "median_score": statistics.median(g["score"] for g in games),
+            "average_highest_tile": round(statistics.fmean(g["highest_tile"] for g in games)),
+            "average_moves": round(statistics.fmean(g["moves"] for g in games)),
+            "average_decision_ms": round(statistics.fmean(g["mean_decision_ms"] for g in games), 3),
+            "average_nodes_per_move": round(statistics.fmean(g["mean_nodes_expanded"] for g in games)),
         })
-    return summaries
+    return summary
 
 
-def write_csv(path, fieldnames, rows):
-    """Write result dictionaries as a UTF-8 CSV file."""
-    with path.open("w", newline="", encoding="utf-8") as output:
-        writer = csv.DictWriter(output, fieldnames=fieldnames)
+def write_csv(path, rows):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
+    print("saved", path)
 
 
-def _play_job(job):
-    """Helper for the process pool: unpack one (config, seed, max_moves) job."""
-    config, seed, max_moves = job
-    return play_game(config, seed, max_moves=max_moves)
+def compare_agents(depths, seeds, output_dir, workers, max_moves=None):
+    """Random, Greedy, Expectimax at each depth, plus the no-monotonicity ablation."""
+    configs = [agent_config("random"), agent_config("greedy")]
+    configs += [agent_config("expectimax", depth) for depth in depths]
+    configs += [agent_config("expectimax", depth, "monotonicity") for depth in depths]
+    rows = run_games(configs, seeds, workers, max_moves)
+    summary = summarize(rows)
+    write_csv(output_dir / "per_game.csv", rows)
+    write_csv(output_dir / "summary.csv", summary)
+    for line in summary:
+        print(f"{line['agent_label']:<40} average score {line['average_score']:>7}, "
+              f"2048 in {line['win_rate_percent']}% of games, {line['average_decision_ms']} ms/move")
 
 
-def run_experiment(seeds, configs, output_dir, max_moves=None, workers=1):
-    """Run every configuration on every seed and write the two report files.
+def tune_weights(workers):
+    """Two-stage grid search on the tuning seeds.
 
-    Games are independent, so with ``workers > 1`` several games run at the
-    same time on different CPU cores. Every game is still fully determined by
-    its seed, so the results are identical; only the wall-clock time changes.
+    Stage 1: all 81 weight combinations with cheap depth-1 search.
+    Stage 2: the best 5 (plus the old default) again at depth 2; best average score wins.
     """
-    if not seeds:
-        raise ValueError("Provide at least one seed")
-    if not configs:
-        raise ValueError("Provide at least one agent configuration")
+    def score_candidates(candidates, depth):
+        configs = [agent_config("expectimax", depth, weights=dict(zip(WEIGHT_GRID, c)))
+                   for c in candidates]
+        rows = run_games(configs, TUNING_SEEDS, workers)
+        n = len(TUNING_SEEDS)
+        table = []
+        for index, candidate in enumerate(candidates):
+            games = rows[index * n:(index + 1) * n]  # rows come back in job order
+            table.append({**dict(zip(WEIGHT_GRID, candidate)), "depth": depth,
+                          "average_score": round(statistics.fmean(g["score"] for g in games)),
+                          "reached_2048": sum(g["reached_2048"] for g in games)})
+        table.sort(key=lambda row: row["average_score"], reverse=True)
+        write_csv(Path(f"results/tuning/tuning_depth{depth}.csv"), table)
+        return table
 
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    jobs = [(config, seed, max_moves) for config in configs for seed in seeds]
-    if workers > 1:
-        with multiprocessing.Pool(workers) as pool:
-            rows = []
-            for row in pool.imap(_play_job, jobs):  # imap keeps the job order
-                rows.append(row)
-                print(f"  finished {len(rows)}/{len(jobs)}: {row['agent_label']} seed {row['seed']}", flush=True)
-    else:
-        rows = [_play_job(job) for job in jobs]
-    summaries = summarize(rows, configs)
-    write_csv(output_dir / "per_game.csv", PER_GAME_FIELDS, rows)
-    write_csv(output_dir / "summary.csv", SUMMARY_FIELDS, summaries)
-    return rows, summaries
-
-
-def build_parser():
-    parser = argparse.ArgumentParser(
-        description="Compare 2048 agents on identical seeded games.",
-    )
-    parser.add_argument(
-        "--seeds",
-        nargs="+",
-        default=["1-3"],
-        help="Individual seeds or inclusive ranges, for example: 1-50 (default: 1-3)",
-    )
-    parser.add_argument(
-        "--agents",
-        nargs="+",
-        choices=("random", "greedy", "expectimax"),
-        default=("random", "greedy", "expectimax"),
-        help="Agents to compare (default: all three)",
-    )
-    parser.add_argument(
-        "--depths",
-        nargs="+",
-        type=int,
-        default=(2,),
-        help="Expectimax depths to compare (default: 2)",
-    )
-    parser.add_argument(
-        "--max-chance-outcomes",
-        type=int,
-        default=None,
-        help="Optional deterministic chance-node limit; omit for exact branching.",
-    )
-    parser.add_argument(
-        "--ablate",
-        nargs="+",
-        choices=tuple(DEFAULT_WEIGHTS),
-        default=(),
-        help="Also run Expectimax with these heuristic features switched off.",
-    )
-    parser.add_argument(
-        "--workers",
-        type=int,
-        default=1,
-        help="Number of games to run in parallel (default: 1).",
-    )
-    parser.add_argument(
-        "--max-moves",
-        type=int,
-        default=None,
-        help="Optional safety cap per game; omit to play until terminal.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=Path("results"),
-        help="Folder for per_game.csv and summary.csv (default: results)",
-    )
-    return parser
+    stage1 = score_candidates(list(itertools.product(*WEIGHT_GRID.values())), depth=1)
+    best = [tuple(row[name] for name in WEIGHT_GRID) for row in stage1[:5]]
+    old_default = (270.0, 47.0, 11.0, 10.0)
+    if old_default not in best:
+        best.append(old_default)
+    stage2 = score_candidates(best, depth=2)
+    print("Best weights:", {name: stage2[0][name] for name in WEIGHT_GRID})
 
 
 def main():
-    args = build_parser().parse_args()
-    seeds = parse_seeds(args.seeds)
-    configs = build_configs(args.agents, args.depths, args.max_chance_outcomes, args.ablate)
-    rows, summaries = run_experiment(
-        seeds, configs, args.output_dir, args.max_moves, workers=args.workers
-    )
+    parser = argparse.ArgumentParser(description="Tune and compare the 2048 agents.")
+    parser.add_argument("--tune", action="store_true", help="grid-search the heuristic weights")
+    parser.add_argument("--quick", action="store_true", help="a fast check: 3 seeds, 100 moves")
+    parser.add_argument("--depths", type=int, nargs="+", default=[1, 2, 3])
+    parser.add_argument("--workers", type=int, default=max(1, multiprocessing.cpu_count() - 1))
+    parser.add_argument("--output", type=Path, default=Path("results/final"))
+    args = parser.parse_args()
 
-    print(f"Completed {len(rows)} games. Results saved to {args.output_dir}.")
-    for summary in summaries:
-        print(
-            f"{summary['agent_label']}: "
-            f"average score {summary['average_score']:.1f}, "
-            f"win rate {summary['win_rate']:.1%}, "
-            f"average decision {summary['average_decision_ms']:.3f} ms"
-        )
+    if args.tune:
+        tune_weights(args.workers)
+    elif args.quick:
+        compare_agents([1, 2], [1, 2, 3], Path("results/quick"), args.workers, max_moves=100)
+    else:
+        compare_agents(args.depths, EVALUATION_SEEDS, args.output, args.workers)
 
 
 if __name__ == "__main__":

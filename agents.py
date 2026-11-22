@@ -134,22 +134,15 @@ class GreedyAgent:
 class ExpectimaxAgent:
     """Depth-limited Expectimax with MAX moves, chance spawns, and caching.
 
-    ``max_chance_outcomes`` is optional. When set, the complete spawn
-    distribution is divided into that many equal-probability intervals and
-    the midpoint outcome of each interval is evaluated. This is a deterministic
-    approximation to the exact chance expectation; the default is exact.
-    ``nodes_expanded`` counts MAX and chance nodes actually evaluated, excluding
-    results served from the transposition table.
+    ``nodes_expanded`` counts the MAX and chance nodes actually computed in the
+    last decision (answers found in the transposition table are not counted).
     """
 
-    def __init__(self, depth=3, weights=None, max_chance_outcomes=None):
+    def __init__(self, depth=3, weights=None):
         if not isinstance(depth, int) or depth < 1:
             raise ValueError("depth must be a positive integer")
-        if max_chance_outcomes is not None and max_chance_outcomes < 1:
-            raise ValueError("max_chance_outcomes must be at least 1")
         self.depth = depth
         self.weights = dict(weights) if weights is not None else None
-        self.max_chance_outcomes = max_chance_outcomes
         self.nodes_expanded = 0
         self.transposition_table = {}
         self.move_values = {}  # direction -> expected value, for display
@@ -186,30 +179,14 @@ class ExpectimaxAgent:
 
     def _spawn_outcomes(self, board):
         """List (board after spawn, probability) for every possible new tile."""
+        # After a legal move there is always at least one empty cell.
         empty = [(r, c) for r in range(SIZE) for c in range(SIZE) if board[r][c] == 0]
-        if not empty:
-            return [(board, 1.0)]
         outcomes = []
-        cell_probability = 1.0 / len(empty)
         for r, c in empty:
             for tile, tile_probability in ((2, 0.9), (4, 0.1)):
-                outcomes.append((place_tile(board, r, c, tile), cell_probability * tile_probability))
-        limit = self.max_chance_outcomes
-        if limit is None or len(outcomes) <= limit:
-            return outcomes
-
-        # Stratified midpoint approximation: each representative stands for
-        # one equal-probability slice of the full distribution.
-        sampled = []
-        for index in range(limit):
-            midpoint = (index + 0.5) / limit
-            cumulative = 0.0
-            for child, probability in outcomes:
-                cumulative += probability
-                if midpoint <= cumulative:
-                    sampled.append((child, 1.0 / limit))
-                    break
-        return sampled
+                probability = (1 / len(empty)) * tile_probability
+                outcomes.append((place_tile(board, r, c, tile), probability))
+        return outcomes
 
     def _chance_value(self, board, depth):
         """CHANCE node: probability-weighted average over all tile spawns."""
