@@ -71,4 +71,54 @@ run of Expectimax beating Greedy and answers to likely viva questions.
 
 ## Results
 
-*Filled in from `results/final/summary.csv` after the full experiment.*
+50 games per agent on seeds 1–50 (the same 50 starting boards for every agent).
+Numbers come from `results/final/summary.csv`; charts are in `results/charts/`.
+
+| Agent | Average score | Median score | Reached 2048 | Reached 4096 | Time per move | Nodes per move |
+|---|---:|---:|---:|---:|---:|---:|
+| Random | 1,098 | 1,024 | 0% | 0% | 0.04 ms | – |
+| Greedy | 10,860 | 8,744 | 6% | 0% | 0.08 ms | – |
+| Expectimax depth 1 | 16,539 | 14,390 | 24% | 0% | 0.9 ms | 42 |
+| Expectimax depth 2 | 30,070 | 29,916 | 64% | 16% | 20 ms | 928 |
+| Expectimax depth 3 | **40,656** | **36,262** | **86%** | **32%** | 267 ms | 13,978 |
+
+![Highest tile reached](results/charts/highest_tile_distribution.png)
+
+**What the results show**
+
+1. **Any heuristic beats random play by about 10×.** Random never gets past a
+   256 tile; Greedy's average score is 10× higher.
+2. **Modelling the random tile is what matters.** Greedy and Expectimax depth 1
+   both look exactly one move ahead. The only difference is that Expectimax
+   averages over every possible new tile and avoids moves that can lose
+   (see the dry run in VIVA_GUIDE.md). That alone raises the 2048 rate from 6% to 24%.
+3. **Deeper search plays better:** 24% → 64% → 86% of games reach 2048 at
+   depths 1 → 2 → 3, and a third of depth-3 games reach 4096.
+4. **But the cost grows exponentially.** Each extra level expands about 15–22×
+   more nodes and takes about 14–21× longer per move (0.9 → 20 → 267 ms). Depth 4
+   would be roughly 4 s per move, over 2 hours per game in Python, which is why
+   it was not included.
+5. **Results vary a lot between games** (see the box plot): an unlucky tile
+   early on can end a game. That is why 50 games per agent were used instead of a few.
+
+![Score distribution](results/charts/score_boxplot.png)
+![Decision time and nodes vs depth](results/charts/depth_cost.png)
+
+**Ablation: is monotonicity useful?** Expectimax was rerun with the monotonicity
+weight set to 0 (everything else unchanged):
+
+| Depth | Average score with → without | Reached 2048 with → without |
+|---|---|---|
+| 1 | 16,539 → 6,363 | 24% → 0% |
+| 2 | 30,070 → 13,300 | 64% → 8% |
+| 3 | 40,656 → 18,948 (39 of 50 games so far) | 86% → 31% |
+
+Without monotonicity the score roughly halves at every depth, and even depth 3
+without it is worse than depth 2 with it. A good heuristic matters as much as
+deeper search.
+
+![Ablation](results/charts/ablation.png)
+
+**Limitations.** Pure Python limits the search to depth 3. The weights were
+tuned on 20 games with a small grid. There is no learning (reinforcement
+learning and neural networks were out of scope).

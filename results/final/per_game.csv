@@ -1,0 +1,390 @@
+agent_label,agent,depth,ablated_feature,seed,score,highest_tile,moves,reached_2048,mean_decision_ms,mean_nodes_expanded
+Random,random,,,1,1052,128,114,0,0.105,0.0
+Random,random,,,3,684,64,90,0,0.0225,0.0
+Random,random,,,2,1032,128,110,0,0.0215,0.0
+Random,random,,,4,704,64,94,0,0.0282,0.0
+Random,random,,,6,596,64,80,0,0.0224,0.0
+Random,random,,,5,1500,128,152,0,0.0223,0.0
+Random,random,,,9,580,64,79,0,0.0232,0.0
+Random,random,,,7,660,64,87,0,0.0282,0.0
+Random,random,,,8,1268,128,131,0,0.0216,0.0
+Random,random,,,11,836,64,100,0,0.0243,0.0
+Random,random,,,13,888,64,108,0,0.0256,0.0
+Random,random,,,10,568,64,77,0,0.1004,0.0
+Random,random,,,12,1468,128,152,0,0.0246,0.0
+Random,random,,,14,1016,128,109,0,0.0212,0.0
+Random,random,,,16,604,64,85,0,0.0252,0.0
+Random,random,,,15,1308,128,133,0,0.0258,0.0
+Random,random,,,19,284,32,54,0,0.0218,0.0
+Random,random,,,18,1032,128,113,0,0.0282,0.0
+Random,random,,,17,1420,128,145,0,0.0275,0.0
+Random,random,,,20,1444,128,150,0,0.0249,0.0
+Random,random,,,24,1296,128,133,0,0.0212,0.0
+Random,random,,,22,2432,256,205,0,0.0259,0.0
+Random,random,,,27,316,32,61,0,0.0228,0.0
+Random,random,,,21,1544,128,155,0,0.0362,0.0
+Random,random,,,26,584,64,81,0,0.033,0.0
+Random,random,,,23,1660,128,168,0,0.0574,0.0
+Random,random,,,28,896,64,109,0,0.0241,0.0
+Random,random,,,29,984,128,104,0,0.0269,0.0
+Random,random,,,30,1216,128,124,0,0.0229,0.0
+Random,random,,,33,676,64,90,0,0.0255,0.0
+Random,random,,,35,576,64,79,0,0.0239,0.0
+Random,random,,,32,888,64,108,0,0.0751,0.0
+Random,random,,,34,1580,128,157,0,0.0332,0.0
+Random,random,,,25,1112,64,130,0,0.0742,0.0
+Random,random,,,37,1044,128,111,0,0.024,0.0
+Random,random,,,31,1564,128,155,0,0.0355,0.0
+Random,random,,,36,2520,256,216,0,0.0241,0.0
+Random,random,,,41,776,64,97,0,0.0264,0.0
+Random,random,,,43,464,64,68,0,0.019,0.0
+Random,random,,,39,1352,128,139,0,0.0503,0.0
+Random,random,,,44,532,64,72,0,0.0394,0.0
+Random,random,,,38,1388,128,144,0,0.0233,0.0
+Random,random,,,45,916,64,110,0,0.023,0.0
+Random,random,,,49,604,64,82,0,0.0182,0.0
+Random,random,,,48,644,64,90,0,0.027,0.0
+Random,random,,,47,1364,128,142,0,0.027,0.0
+Random,random,,,46,2096,256,175,0,0.0263,0.0
+Random,random,,,42,1760,128,167,0,0.0973,0.0
+Random,random,,,50,724,64,88,0,0.0237,0.0
+Random,random,,,40,2468,256,203,0,0.1027,0.0
+Greedy,greedy,,,2,6944,512,469,0,0.0866,0.0
+Greedy,greedy,,,3,5156,512,363,0,0.1139,0.0
+Greedy,greedy,,,7,6012,512,411,0,0.0754,0.0
+Greedy,greedy,,,8,7836,512,546,0,0.085,0.0
+Greedy,greedy,,,4,12988,1024,794,0,0.1058,0.0
+Greedy,greedy,,,5,23104,2048,1170,1,0.0822,0.0
+Greedy,greedy,,,9,7056,512,480,0,0.0678,0.0
+Greedy,greedy,,,1,15464,1024,901,0,0.1159,0.0
+Greedy,greedy,,,13,2928,256,259,0,0.0653,0.0
+Greedy,greedy,,,6,25652,2048,1320,1,0.0957,0.0
+Greedy,greedy,,,11,6000,512,434,0,0.0928,0.0
+Greedy,greedy,,,14,8648,512,584,0,0.077,0.0
+Greedy,greedy,,,10,14308,1024,879,0,0.0793,0.0
+Greedy,greedy,,,12,16632,1024,999,0,0.0713,0.0
+Greedy,greedy,,,15,12580,1024,756,0,0.0689,0.0
+Greedy,greedy,,,18,8772,512,590,0,0.0868,0.0
+Greedy,greedy,,,19,8572,512,576,0,0.0754,0.0
+Greedy,greedy,,,16,16804,1024,996,0,0.0793,0.0
+Greedy,greedy,,,17,17820,1024,1059,0,0.0878,0.0
+Greedy,greedy,,,20,13288,1024,815,0,0.0676,0.0
+Greedy,greedy,,,22,4388,256,357,0,0.0771,0.0
+Greedy,greedy,,,21,17816,1024,1028,0,0.07,0.0
+Greedy,greedy,,,23,12328,1024,734,0,0.0773,0.0
+Greedy,greedy,,,28,5308,512,360,0,0.0646,0.0
+Greedy,greedy,,,24,12200,1024,722,0,0.0817,0.0
+Greedy,greedy,,,25,8348,512,578,0,0.0857,0.0
+Greedy,greedy,,,26,16288,1024,960,0,0.067,0.0
+Greedy,greedy,,,31,7124,512,493,0,0.0805,0.0
+Greedy,greedy,,,27,15632,1024,913,0,0.0832,0.0
+Greedy,greedy,,,30,12640,1024,760,0,0.0697,0.0
+Greedy,greedy,,,32,8940,512,609,0,0.0898,0.0
+Greedy,greedy,,,33,8716,512,587,0,0.0745,0.0
+Greedy,greedy,,,37,4092,256,331,0,0.0647,0.0
+Greedy,greedy,,,34,7468,512,521,0,0.0862,0.0
+Greedy,greedy,,,29,17228,1024,1010,0,0.0864,0.0
+Greedy,greedy,,,35,8644,512,585,0,0.0878,0.0
+Greedy,greedy,,,41,3336,256,281,0,0.0778,0.0
+Greedy,greedy,,,42,3672,256,312,0,0.0718,0.0
+Greedy,greedy,,,38,16056,1024,953,0,0.0702,0.0
+Greedy,greedy,,,36,22540,2048,1153,1,0.0719,0.0
+Greedy,greedy,,,39,15108,1024,893,0,0.0711,0.0
+Greedy,greedy,,,40,9960,512,693,0,0.0828,0.0
+Greedy,greedy,,,44,5992,512,421,0,0.0736,0.0
+Greedy,greedy,,,43,8976,512,608,0,0.0758,0.0
+Greedy,greedy,,,46,6236,512,439,0,0.0719,0.0
+Greedy,greedy,,,47,6120,512,428,0,0.0733,0.0
+Greedy,greedy,,,45,7304,512,509,0,0.073,0.0
+Greedy,greedy,,,49,7144,512,500,0,0.084,0.0
+Greedy,greedy,,,50,8488,512,566,0,0.0918,0.0
+Greedy,greedy,,,48,18332,1024,1101,0,0.0856,0.0
+Expectimax depth 1,expectimax,1,,4,7800,512,547,0,0.9058,42.4
+Expectimax depth 1,expectimax,1,,2,12428,1024,742,0,0.7438,36.9
+Expectimax depth 1,expectimax,1,,3,17132,1024,1030,0,0.7482,35.9
+Expectimax depth 1,expectimax,1,,6,17080,1024,1022,0,0.8995,38.2
+Expectimax depth 1,expectimax,1,,5,16752,1024,1003,0,0.9681,41.6
+Expectimax depth 1,expectimax,1,,7,6796,512,475,0,1.0527,40.2
+Expectimax depth 1,expectimax,1,,8,15828,1024,929,0,0.8342,36.5
+Expectimax depth 1,expectimax,1,,1,33948,2048,1731,1,0.8874,39.9
+Expectimax depth 1,expectimax,1,,11,13020,1024,786,0,1.0262,42.5
+Expectimax depth 1,expectimax,1,,12,14212,1024,846,0,1.0571,45.6
+Expectimax depth 1,expectimax,1,,9,34400,2048,1759,1,0.7762,35.5
+Expectimax depth 1,expectimax,1,,13,16988,1024,1011,0,0.9395,45.4
+Expectimax depth 1,expectimax,1,,15,7268,512,495,0,1.1572,51.7
+Expectimax depth 1,expectimax,1,,10,31312,2048,1661,1,0.8364,38.8
+Expectimax depth 1,expectimax,1,,14,16080,1024,944,0,1.0132,43.7
+Expectimax depth 1,expectimax,1,,17,9884,512,678,0,0.9447,42.6
+Expectimax depth 1,expectimax,1,,18,9440,512,647,0,0.9091,44.7
+Expectimax depth 1,expectimax,1,,21,4268,256,348,0,1.2186,55.2
+Expectimax depth 1,expectimax,1,,20,9628,512,657,0,0.8813,44.2
+Expectimax depth 1,expectimax,1,,19,11756,1024,694,0,0.9119,46.4
+Expectimax depth 1,expectimax,1,,25,6624,512,452,0,0.8906,45.7
+Expectimax depth 1,expectimax,1,,16,32460,2048,1666,1,0.9213,39.8
+Expectimax depth 1,expectimax,1,,23,12688,1024,767,0,0.982,43.1
+Expectimax depth 1,expectimax,1,,22,16504,1024,984,0,0.8624,43.0
+Expectimax depth 1,expectimax,1,,26,20276,1024,1185,0,0.751,37.9
+Expectimax depth 1,expectimax,1,,28,8704,512,603,0,0.8989,40.1
+Expectimax depth 1,expectimax,1,,27,13332,1024,789,0,0.9489,44.3
+Expectimax depth 1,expectimax,1,,29,14568,1024,842,0,0.8306,36.0
+Expectimax depth 1,expectimax,1,,24,28120,2048,1462,1,1.0057,43.0
+Expectimax depth 1,expectimax,1,,31,10044,1024,587,0,0.9099,46.6
+Expectimax depth 1,expectimax,1,,30,18240,1024,1098,0,0.7533,34.7
+Expectimax depth 1,expectimax,1,,32,13976,1024,814,0,1.0115,43.8
+Expectimax depth 1,expectimax,1,,36,7860,512,543,0,0.9219,45.1
+Expectimax depth 1,expectimax,1,,33,17788,1024,1055,0,0.8174,40.1
+Expectimax depth 1,expectimax,1,,34,12528,1024,758,0,0.903,40.6
+Expectimax depth 1,expectimax,1,,37,9804,512,676,0,0.82,41.4
+Expectimax depth 1,expectimax,1,,39,4204,256,346,0,0.9453,47.8
+Expectimax depth 1,expectimax,1,,40,5892,512,427,0,0.8751,45.3
+Expectimax depth 1,expectimax,1,,42,15320,1024,912,0,1.0552,46.2
+Expectimax depth 1,expectimax,1,,44,13444,1024,822,0,0.8654,37.4
+Expectimax depth 1,expectimax,1,,35,34232,2048,1790,1,1.0397,35.7
+Expectimax depth 1,expectimax,1,,38,27588,2048,1453,1,1.0832,34.2
+Expectimax depth 1,expectimax,1,,43,25656,2048,1311,1,0.8706,38.4
+Expectimax depth 1,expectimax,1,,41,23840,2048,1239,1,1.2905,42.5
+Expectimax depth 1,expectimax,1,,46,9416,512,653,0,0.8888,43.2
+Expectimax depth 1,expectimax,1,,48,8784,512,606,0,1.0773,40.3
+Expectimax depth 1,expectimax,1,,47,17864,1024,1065,0,1.0899,43.9
+Expectimax depth 1,expectimax,1,,45,36436,2048,1904,1,0.7802,37.3
+Expectimax depth 1,expectimax,1,,49,27460,2048,1429,1,0.8575,40.7
+Expectimax depth 1,expectimax,1,,50,27284,2048,1424,1,1.101,39.7
+Expectimax depth 2,expectimax,2,,1,13208,1024,800,0,21.8873,976.9
+Expectimax depth 2,expectimax,2,,6,21708,2048,1093,1,23.359,1003.4
+Expectimax depth 2,expectimax,2,,2,34240,2048,1788,1,18.77,785.4
+Expectimax depth 2,expectimax,2,,5,28248,2048,1499,1,23.0454,976.3
+Expectimax depth 2,expectimax,2,,3,29968,2048,1507,1,23.533,950.8
+Expectimax depth 2,expectimax,2,,7,18644,1024,1123,0,25.4975,1074.5
+Expectimax depth 2,expectimax,2,,4,57256,4096,2644,1,18.3949,797.6
+Expectimax depth 2,expectimax,2,,8,23220,2048,1189,1,18.9315,938.0
+Expectimax depth 2,expectimax,2,,11,10872,1024,649,0,23.9448,1147.0
+Expectimax depth 2,expectimax,2,,10,16432,1024,972,0,21.4518,1036.8
+Expectimax depth 2,expectimax,2,,13,16144,1024,955,0,20.7908,988.9
+Expectimax depth 2,expectimax,2,,16,16628,1024,995,0,18.8885,893.9
+Expectimax depth 2,expectimax,2,,14,36500,2048,1907,1,17.3715,819.1
+Expectimax depth 2,expectimax,2,,15,32296,2048,1653,1,19.1583,918.4
+Expectimax depth 2,expectimax,2,,17,13212,1024,802,0,20.2124,949.4
+Expectimax depth 2,expectimax,2,,9,70844,4096,3226,1,17.2542,817.4
+Expectimax depth 2,expectimax,2,,12,60732,4096,2841,1,16.9985,795.0
+Expectimax depth 2,expectimax,2,,20,14532,1024,880,0,20.7357,1007.1
+Expectimax depth 2,expectimax,2,,22,16552,1024,984,0,19.9903,943.7
+Expectimax depth 2,expectimax,2,,18,34588,2048,1781,1,20.2461,949.8
+Expectimax depth 2,expectimax,2,,19,27588,2048,1453,1,20.3663,952.2
+Expectimax depth 2,expectimax,2,,23,16108,1024,949,0,21.2536,1021.6
+Expectimax depth 2,expectimax,2,,24,12408,1024,741,0,22.7669,1074.2
+Expectimax depth 2,expectimax,2,,21,36176,2048,1873,1,18.7452,896.7
+Expectimax depth 2,expectimax,2,,29,7196,512,499,0,23.4311,1114.3
+Expectimax depth 2,expectimax,2,,25,22336,2048,1142,1,19.0644,935.2
+Expectimax depth 2,expectimax,2,,28,14864,1024,878,0,19.4113,935.5
+Expectimax depth 2,expectimax,2,,27,18592,1024,1126,0,22.616,1033.6
+Expectimax depth 2,expectimax,2,,26,32452,2048,1660,1,20.9157,940.7
+Expectimax depth 2,expectimax,2,,30,38120,2048,1950,1,17.0445,785.5
+Expectimax depth 2,expectimax,2,,31,30968,2048,1625,1,16.3524,818.2
+Expectimax depth 2,expectimax,2,,35,16600,1024,986,0,22.9907,1068.0
+Expectimax depth 2,expectimax,2,,37,11436,1024,690,0,20.0064,1049.2
+Expectimax depth 2,expectimax,2,,34,34736,2048,1788,1,19.2225,892.4
+Expectimax depth 2,expectimax,2,,33,56948,4096,2616,1,15.8514,792.1
+Expectimax depth 2,expectimax,2,,36,34364,2048,1739,1,15.5072,785.5
+Expectimax depth 2,expectimax,2,,32,61284,4096,2883,1,17.3907,799.1
+Expectimax depth 2,expectimax,2,,41,15732,1024,950,0,16.7512,865.4
+Expectimax depth 2,expectimax,2,,39,32808,2048,1700,1,17.5939,890.9
+Expectimax depth 2,expectimax,2,,42,14788,1024,908,0,21.9375,1139.1
+Expectimax depth 2,expectimax,2,,38,35240,2048,1816,1,19.9643,937.6
+Expectimax depth 2,expectimax,2,,40,34796,2048,1782,1,18.315,889.6
+Expectimax depth 2,expectimax,2,,43,35648,2048,1834,1,18.2098,869.4
+Expectimax depth 2,expectimax,2,,44,56320,4096,2582,1,16.4481,800.0
+Expectimax depth 2,expectimax,2,,48,35956,2048,1868,1,16.2348,834.3
+Expectimax depth 2,expectimax,2,,45,36728,2048,1928,1,20.1696,942.0
+Expectimax depth 2,expectimax,2,,49,27396,2048,1421,1,17.6026,898.9
+Expectimax depth 2,expectimax,2,,46,51536,4096,2362,1,20.205,949.4
+Expectimax depth 2,expectimax,2,,47,58676,4096,2685,1,17.3482,793.9
+Expectimax depth 2,expectimax,2,,50,29864,2048,1489,1,18.9656,928.9
+Expectimax depth 3,expectimax,3,,6,19468,1024,1118,0,274.7518,13419.5
+Expectimax depth 3,expectimax,3,,2,27012,2048,1419,1,275.2185,13409.3
+Expectimax depth 3,expectimax,3,,5,28440,2048,1513,1,308.0983,14579.6
+Expectimax depth 3,expectimax,3,,3,27568,2048,1457,1,364.2551,17596.1
+Expectimax depth 3,expectimax,3,,1,35276,2048,1826,1,297.0641,14381.2
+Expectimax depth 3,expectimax,3,,4,36560,2048,1913,1,287.8044,13622.1
+Expectimax depth 3,expectimax,3,,8,29928,2048,1609,1,305.6775,14664.1
+Expectimax depth 3,expectimax,3,,7,60776,4096,2836,1,267.0654,12719.9
+Expectimax depth 3,expectimax,3,,11,36036,2048,1852,1,316.7591,15361.9
+Expectimax depth 3,expectimax,3,,9,58384,4096,2706,1,298.6772,14572.2
+Expectimax depth 3,expectimax,3,,10,60652,4096,2825,1,280.4519,13542.7
+Expectimax depth 3,expectimax,3,,12,59256,4096,2745,1,281.0011,13570.7
+Expectimax depth 3,expectimax,3,,13,36332,2048,1893,1,269.6957,13543.1
+Expectimax depth 3,expectimax,3,,17,37248,2048,1966,1,223.1258,12095.6
+Expectimax depth 3,expectimax,3,,19,36936,2048,1943,1,244.4506,13391.9
+Expectimax depth 3,expectimax,3,,14,78160,4096,3598,1,226.2823,12102.1
+Expectimax depth 3,expectimax,3,,15,69576,4096,3184,1,244.1365,12960.0
+Expectimax depth 3,expectimax,3,,16,60984,4096,2842,1,241.2661,13166.8
+Expectimax depth 3,expectimax,3,,18,66272,4096,3123,1,228.6714,12393.2
+Expectimax depth 3,expectimax,3,,20,28184,2048,1493,1,227.8967,12664.0
+Expectimax depth 3,expectimax,3,,21,17932,1024,1069,0,259.782,14553.3
+Expectimax depth 3,expectimax,3,,23,28224,2048,1499,1,233.7126,13031.3
+Expectimax depth 3,expectimax,3,,25,16892,1024,1006,0,310.377,17562.1
+Expectimax depth 3,expectimax,3,,24,26880,2048,1402,1,291.4552,16384.6
+Expectimax depth 3,expectimax,3,,27,15964,1024,959,0,287.9303,16425.8
+Expectimax depth 3,expectimax,3,,22,71760,4096,3294,1,230.5422,12771.9
+Expectimax depth 3,expectimax,3,,28,35992,2048,1857,1,235.7216,13290.7
+Expectimax depth 3,expectimax,3,,26,60584,4096,2815,1,237.9394,13157.1
+Expectimax depth 3,expectimax,3,,29,36440,2048,1888,1,239.4983,13110.5
+Expectimax depth 3,expectimax,3,,31,34236,2048,1784,1,269.7525,14631.5
+Expectimax depth 3,expectimax,3,,30,55452,4096,2578,1,233.1104,12683.3
+Expectimax depth 3,expectimax,3,,33,36100,2048,1863,1,260.3779,13771.6
+Expectimax depth 3,expectimax,3,,34,34636,2048,1782,1,252.0229,13470.8
+Expectimax depth 3,expectimax,3,,36,23520,2048,1204,1,276.7106,14977.1
+Expectimax depth 3,expectimax,3,,35,61776,4096,2898,1,213.0772,11245.2
+Expectimax depth 3,expectimax,3,,32,80140,4096,3725,1,218.4018,11415.3
+Expectimax depth 3,expectimax,3,,37,35140,2048,1804,1,278.1682,14605.5
+Expectimax depth 3,expectimax,3,,40,18216,1024,1092,0,296.2147,15644.6
+Expectimax depth 3,expectimax,3,,38,61452,4096,2880,1,238.6097,12436.8
+Expectimax depth 3,expectimax,3,,44,16528,1024,986,0,310.6619,16266.1
+Expectimax depth 3,expectimax,3,,39,58368,4096,2729,1,244.0513,12436.9
+Expectimax depth 3,expectimax,3,,43,27440,2048,1430,1,287.8174,14991.2
+Expectimax depth 3,expectimax,3,,41,36192,2048,1876,1,266.3291,13859.3
+Expectimax depth 3,expectimax,3,,48,7948,512,553,0,385.545,20895.8
+Expectimax depth 3,expectimax,3,,42,60488,4096,2817,1,258.7071,13688.1
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,1,5580,512,397,0,0.7261,44.9
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,2,6700,512,458,0,0.7143,41.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,3,7780,512,537,0,0.81,43.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,4,7152,512,488,0,0.6544,40.6
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,5,5628,512,395,0,0.8797,45.5
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,6,4976,256,386,0,0.6947,38.9
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,7,6492,512,432,0,0.5803,42.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,8,7192,512,497,0,0.8455,45.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,9,11324,1024,653,0,0.7604,39.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,10,3456,256,284,0,0.7499,48.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,11,7084,512,484,0,0.8223,43.5
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,12,5828,512,412,0,0.7454,39.1
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,13,4844,512,344,0,0.7297,41.6
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,14,7368,512,520,0,0.6028,34.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,15,4692,512,321,0,0.5723,40.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,16,10416,1024,611,0,0.6782,38.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,17,3540,256,300,0,0.8025,43.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,18,7032,512,478,0,0.8352,42.1
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,19,6308,512,422,0,0.8576,44.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,20,2484,256,214,0,0.9153,53.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,21,2680,256,224,0,1.0258,54.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,22,6484,512,444,0,0.7728,45.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,23,11912,1024,702,0,0.7326,39.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,24,7180,512,490,0,0.7634,39.9
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,25,6176,512,409,0,0.7848,41.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,26,5448,512,386,0,0.8895,52.4
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,27,12188,1024,724,0,0.6954,37.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,28,11880,1024,695,0,0.6221,38.9
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,29,5248,512,364,0,0.7468,45.3
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,30,5532,512,398,0,0.8224,44.1
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,31,4836,256,372,0,0.6529,37.4
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,32,5484,512,386,0,0.7919,44.3
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,33,6300,512,419,0,0.8501,44.1
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,34,10504,1024,618,0,0.6896,39.4
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,35,3224,256,268,0,0.8251,48.0
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,36,6724,512,441,0,0.8914,48.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,37,8512,512,587,0,0.6649,36.3
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,38,3160,256,259,0,0.9093,51.6
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,39,3304,256,277,0,1.0368,54.1
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,40,3564,256,298,0,0.6385,48.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,41,6432,512,435,0,0.6975,41.7
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,42,3132,256,256,0,0.8882,50.2
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,43,6472,512,465,0,0.7589,41.2
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,44,916,64,111,0,1.0081,54.5
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,45,7384,512,514,0,0.7007,39.1
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,46,15304,1024,913,0,0.6007,34.2
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,47,3536,256,297,0,0.7703,46.2
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,48,3188,256,261,0,0.8503,50.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,49,4112,256,335,0,0.7962,40.8
+Expectimax depth 1 (no monotonicity),expectimax,1,monotonicity,50,11444,1024,677,0,0.5771,38.0
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,1,12468,1024,745,0,19.2464,1064.5
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,2,14388,1024,835,0,20.8333,1178.3
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,3,7196,512,500,0,18.8227,1058.4
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,4,16352,1024,967,0,18.9693,1037.3
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,5,12236,1024,733,0,20.5437,1136.7
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,6,15920,1024,935,0,18.0584,992.6
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,7,23312,2048,1187,1,18.152,989.8
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,8,26528,2048,1374,1,18.953,1017.2
+Expectimax depth 3,expectimax,3,,47,36788,2048,1931,1,246.9153,13025.1
+Expectimax depth 3,expectimax,3,,46,36400,2048,1901,1,263.1035,14034.2
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,9,8424,512,567,0,17.8766,989.8
+Expectimax depth 3,expectimax,3,,45,34976,2048,1821,1,278.7437,14727.4
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,10,7392,512,514,0,20.1993,1127.9
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,11,12192,1024,723,0,19.4878,1059.5
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,12,15636,1024,913,0,16.401,896.7
+Expectimax depth 3,expectimax,3,,49,36712,2048,1907,1,240.2636,12679.8
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,13,13168,1024,805,0,18.9864,1060.1
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,15,7372,512,507,0,17.7097,1001.2
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,14,14504,1024,854,0,20.7212,1146.6
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,16,12548,1024,759,0,17.5012,947.5
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,17,10692,1024,631,0,20.6529,1135.1
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,18,14504,1024,850,0,19.7142,1043.0
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,19,14724,1024,864,0,18.2566,1037.8
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,20,15412,1024,899,0,19.0321,1043.7
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,21,12596,1024,763,0,19.9402,1094.6
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,23,7552,512,530,0,20.1108,1085.5
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,22,16084,1024,945,0,18.08,982.1
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,24,13012,1024,785,0,17.5837,949.8
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,26,11956,1024,711,0,18.4952,1017.1
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,25,15560,1024,914,0,19.0759,1053.6
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,28,16100,1024,947,0,15.5787,852.0
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,30,7304,512,508,0,20.1953,1108.5
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,27,28152,2048,1470,1,16.3963,915.4
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,31,12164,1024,728,0,19.8015,1086.5
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,29,27140,2048,1404,1,16.1425,878.9
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,32,13188,1024,808,0,17.8007,976.3
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,34,6780,512,459,0,21.2368,1197.2
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,33,12500,1024,751,0,19.7176,1089.2
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,38,6748,512,463,0,22.9777,1280.1
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,35,16224,1024,963,0,19.018,1045.0
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,36,15872,1024,919,0,19.7236,1070.6
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,37,13048,1024,796,0,19.5427,1056.1
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,39,16304,1024,975,0,16.9345,958.4
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,40,7576,512,533,0,17.5753,974.7
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,41,7376,512,512,0,22.0769,1223.2
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,42,7320,512,513,0,23.0334,1285.6
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,45,7480,512,521,0,18.6481,1040.8
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,43,15896,1024,929,0,18.6115,1024.1
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,44,7588,512,525,0,20.4428,1129.8
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,47,8016,512,558,0,17.0512,962.5
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,46,16532,1024,977,0,18.4056,1011.1
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,48,14740,1024,868,0,16.979,939.9
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,49,14576,1024,855,0,17.8216,953.0
+Expectimax depth 2 (no monotonicity),expectimax,2,monotonicity,50,14664,1024,862,0,20.2039,1090.7
+Expectimax depth 3,expectimax,3,,50,36580,2048,1906,1,250.2879,13348.2
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,5,12280,1024,730,0,355.4035,19030.4
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,1,16480,1024,978,0,301.0714,16163.7
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,3,16304,1024,971,0,315.1774,16832.8
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,6,16240,1024,963,0,331.2582,17786.2
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,4,25584,2048,1314,1,316.3638,16902.8
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,2,34552,2048,1780,1,297.3032,15762.2
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,9,14496,1024,846,0,342.9766,18371.9
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,8,16276,1024,971,0,333.9917,17724.5
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,7,27080,2048,1405,1,313.0376,16557.8
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,11,14804,1024,876,0,337.5105,17879.2
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,12,16348,1024,965,0,326.159,17171.1
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,10,25952,2048,1346,1,326.6393,17162.2
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,13,16276,1024,971,0,343.2698,18160.1
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,14,16112,1024,950,0,343.7722,18168.0
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,16,16248,1024,958,0,321.4915,16624.4
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,15,36036,2048,1852,1,263.5529,13236.2
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,18,16376,1024,978,0,350.0791,17246.9
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,17,27504,2048,1446,1,306.6449,15192.9
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,19,16352,1024,969,0,372.5145,18365.5
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,20,25492,2048,1303,1,342.7042,16689.3
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,22,7880,512,544,0,401.466,19856.4
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,23,12520,1024,756,0,372.9997,18158.5
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,21,26552,2048,1369,1,353.8897,17123.4
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,25,12180,1024,720,0,401.8026,19547.2
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,24,16412,1024,977,0,306.572,14695.9
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,28,7520,512,511,0,408.8402,20355.7
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,29,15420,1024,891,0,355.7245,17377.9
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,27,27972,2048,1476,1,342.6961,16628.4
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,26,36412,2048,1882,1,290.5644,13958.4
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,30,16132,1024,955,0,370.085,18101.9
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,32,17272,1024,1033,0,339.9917,16486.4
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,33,16156,1024,949,0,325.5164,15992.9
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,31,36048,2048,1867,1,303.6844,14700.5
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,35,12268,1024,731,0,407.5723,20313.1
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,36,16596,1024,972,0,342.9664,16816.0
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,34,23904,2048,1235,1,314.1543,15470.0
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,38,7140,512,484,0,371.9603,18281.9
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,37,16380,1024,969,0,349.7729,16955.1
+Expectimax depth 3 (no monotonicity),expectimax,3,monotonicity,40,7420,512,521,0,402.1519,19959.3
