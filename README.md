@@ -111,9 +111,9 @@ weight set to 0 (everything else unchanged):
 |---|---|---|
 | 1 | 16,539 → 6,363 | 24% → 0% |
 | 2 | 30,070 → 13,300 | 64% → 8% |
-| 3 | 40,656 → 18,948 (39 of 50 games so far) | 86% → 31% |
+| 3 | 40,656 → 19,071 | 86% → 30% |
 
-Without monotonicity the score roughly halves at every depth, and even depth 3
+Without monotonicity the average score drops by more than half at every depth, and even depth 3
 without it is worse than depth 2 with it. A good heuristic matters as much as
 deeper search.
 

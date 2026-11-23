@@ -6,4 +6,4 @@ Expectimax depth 2,50,32,64.0,30070,29916.0,1997,1544,19.663,928
 Expectimax depth 3,50,43,86.0,40656,36262.0,2550,2022,267.164,13978
 Expectimax depth 1 (no monotonicity),50,0,0.0,6363,6238.0,513,433,0.769,44
 Expectimax depth 2 (no monotonicity),50,4,8.0,13300,13108.0,963,793,18.986,1046
-Expectimax depth 3 (no monotonicity),39,12,30.8,18948,16348,1287,1062,341.111,17226
+Expectimax depth 3 (no monotonicity),50,15,30.0,19071,16350.0,1280,1069,354.559,17074
